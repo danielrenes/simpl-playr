@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SimplPlayr</title>
+    <link rel="stylesheet" href="../lib/css/bulma.min.css">
+    <link rel="stylesheet" href="../lib/css/fontawesome.css">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+    <script src="../lib/js/jquery-3.3.1.min.js"></script>
+    <script src="../static/js/functions.js"></script>
+    <script>if (window.module) module = window.module;</script>
+</head>
+
+<body>
+    <div id="modal-target">
+    </div>
+    <!-- wrapper for the window -->
+    <div class="columns">
+        <!-- side menu for music finder -->
+        <div id="sidebar" class="column is-4 has-background-dark">
+            <!-- grouping selector -->
+            <div class="tabs is-toggle">
+                <ul>
+                    <li class="is-active groupingOption">
+                        <a>
+                            <span>Artist</span>
+                        </a>
+                    </li>
+                    <li class="groupingOption">
+                        <a>
+                            <span>Album</span>
+                        </a>
+                    </li>
+                    <li class="groupingOption">
+                        <a>
+                            <span>Genre</span>
+                        </a>
+                    </li>
+                    <li class="groupingOption">
+                        <a>
+                            <span>Title</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div id="finder-search-wrap">
+                <!-- search form -->
+                <div id="search-form" class="field has-addons">
+                    <div class="control has-icons-left">
+                        <input id="search-input" class="input" type="text" placeholder="Type to search">
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <div class="control">
+                        <a id="search-submit" class="button has-background-grey-dark has-text-white">
+                            Search
+                        </a>
+                    </div>
+                </div>
+                <span id="search-back" class="icon is-medium">
+                    <i class="fas fa-times-circle fa-2x has-text-white"></i>
+                </span>
+            </div>
+            <!-- dynamic content from song finder -->
+            <div id="finder-content">
+            </div>
+        </div>
+        <!-- main window component -->
+        <div class="column has-background-grey-dark">
+            <!-- menu items -->
+            <div class="navbar has-background-dark">
+                <div class="navbar-menu">
+                    <div class="navbar-start">
+                    </div>
+                    <div class="navbar-end">
+                        <div class="navbar-item">
+                            <p class="control">
+                                <a id="settings" class="button has-background-grey-dark">
+                                    <span class="icon has-text-white">
+                                        <i class="fas fa-cog"></i>
+                                    </span>
+                                    <span class="has-text-white">Settings</span>
+                                </a>
+                            </p>
+                        </div>
+                        <div class="navbar-item">
+                            <p class="control">
+                                <a id="scan" class="button has-background-grey-dark">
+                                    <span class="icon has-text-white">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </span>
+                                    <span class="has-text-white">Scan</span>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- playlist -->
+            <div id="playlist">
+                <table class="table is-fullwidth">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Artist</th>
+                            <th>Album</th>
+                            <!-- <th>Length</th> -->
+                        </tr>
+                    </thead>
+                </table>
+                <table class="table is-fullwidth is-scrollable">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <!-- controllers -->
+            <div id="controller" class="columns">
+                <div class="column is-8 is-offset-2">
+                    <div class="notification has-background-grey-dark has-text-centered">
+                        <a id="control-prev" class="button has-background-grey-dark">
+                            <span class="icon has-text-white">
+                                <i class="fas fa-backward"></i>
+                            </span>
+                        </a>
+                        <a id="control-play-pause" class="button has-background-grey-dark">
+                            <span class="icon has-text-white">
+                                <i class="fas fa-play"></i>
+                            </span>
+                        </a>
+                        <a id="control-next" class="button has-background-grey-dark">
+                            <span class="icon has-text-white">
+                                <i class="fas fa-forward"></i>
+                            </span>
+                        </a>
+                    </div>
+                    <progress id="progress-bar" class="progress is-small is-link" value="0" max="100"></progress>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

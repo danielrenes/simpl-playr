@@ -1,0 +1,8 @@
+<div class="panel">
+<% for (let i = 0; i < result.length; i+=2) { %>
+    <a class="panel-block has-background-grey-dark has-text-white foundItem"><%= result[i] %></a>
+<% if ((i + 1) < result.length) { %>
+    <a class="panel-block has-background-dark has-text-white foundItem"><%= result[i+1] %></a>
+<% } %>
+<% } %>
+</div>

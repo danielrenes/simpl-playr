@@ -1,0 +1,31 @@
+{
+  "name": "simpl-playr",
+  "productName": "SimplPlayr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/mac/512x512.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . simpl-playr --overwrite --asar=true --platform=win32 --arch=x64 --icon=icons/win/512x512.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"SimplPlayr\"",
+    "package-linux": "electron-packager . simpl-playr --overwrite --asar=true --platform=linux --arch=x64 --icon=icons/png/512x512.png --prune=true --out=release-builds"
+  },
+  "keywords": [
+    "music",
+    "audio",
+    "player",
+    "electron"
+  ],
+  "author": "Daniel Renes",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "fuzzysearch": "^1.0.3",
+    "music-metadata": "^2.2.0"
+  },
+  "devDependencies": {
+    "electron": "^2.0.4",
+    "electron-packager": "^12.1.0"
+  }
+}

@@ -1,0 +1,48 @@
+<div class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head has-background-grey-light">
+            <p class="modal-card-title">Settings</p>
+            <button id="modal-close" class="delete" aria-label="close"></button>
+        </header>
+        <section id="settings" class="modal-card-body has-background-grey-lighter">
+        <% for (let key in settings) { %>
+            <% let keyWithSpaces = (key.split(/(?=[A-Z])/)).join(' '); %>
+            <% let label = keyWithSpaces.charAt(0).toUpperCase() + keyWithSpaces.slice(1); %>
+            <% let value = settings[key] %>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label"><%= label %></label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+            <% let type = schema[key]; %>
+            <% if (typeof type === 'string') { %>
+                <% let inputType = type === 'number' ? 'number' : 'text'; %>
+                            <input class="input" type="<%= inputType %>" value="<%= value %>">
+            <% } else { %>
+                            <div class="select is-fullwidth">
+                                <select>
+                <% for (let option in type) { %>
+                    <% let optionWithSpaces = (option.split(/(?=[A-Z])/)).join(' '); %>
+                    <% let optionText = optionWithSpaces.charAt(0).toUpperCase() + optionWithSpaces.slice(1); %>
+                    <% if (option === value) { %>
+                                    <option selected><%= optionText %></option>
+                    <% } else { %>
+                                    <option><%= optionText %></option>
+                    <% } %>
+                <% } %>
+                                </select>
+                            </div>
+            <% } %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+        </section>
+        <footer class="modal-card-foot has-background-grey-light">
+            <button id="modal-cancel" class="button">Cancel</button>
+            <button id="settings-save" class="button is-link">Save changes</button>
+        </footer>
+    </div>
+</div>
