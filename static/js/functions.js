@@ -6,6 +6,13 @@ const ejs = require('ejs');
 const electron = require('electron');
 const { ipcRenderer } = electron;
 
+const KeyCode = {
+    'ARROW_UP': 38,
+    'ARROW_DOWN': 40,
+    'ENTER': 13,
+    'SPACE': 32
+}
+
 let playlistItems = [];
 
 let finderTarget;
@@ -36,6 +43,107 @@ $(document).ready(() => {
     let searchSubmit = $('#search-submit');
 
     let settingsButton = $('#settings');
+
+    $(document).keydown((e) => {
+        const playlistSize = $('.playlist-item').length;
+
+        if (e.keyCode === KeyCode.ARROW_UP || e.keyCode === KeyCode.ARROW_DOWN) {
+            let currentIndex;
+
+            $('.playlist-item').each((index, element) => {
+                if ($(element).hasClass('has-cursor')) {
+                    currentIndex = index;
+                }
+            });
+
+            if (typeof currentIndex === 'undefined') {
+                $('.playlist-item').each((index, element) => {
+                    if ($(element).hasClass('is-loaded')) {
+                        currentIndex = index;
+                    }
+                });
+            }
+
+            if (typeof currentIndex !== 'undefined') {
+                if (e.keyCode === KeyCode.ARROW_UP) {
+                    if ((currentIndex - 1) <= 0) {
+                        $('.playlist-item').each((index, element) => {
+                            if (index === 0) {
+                                $(element).addClass('has-cursor');
+                            } else {
+                                $(element).removeClass('has-cursor');
+                            }
+                        });
+                    } else {
+                        $('.playlist-item').each((index, element) => {
+                            if (index === (currentIndex - 1)) {
+                                $(element).addClass('has-cursor');
+                            } else {
+                                $(element).removeClass('has-cursor');
+                            }
+                        });
+                    }
+                } else if (e.keyCode === KeyCode.ARROW_DOWN) {
+                    if ((currentIndex + 1) >= (playlistSize - 1)) {
+                        $('.playlist-item').each((index, element) => {
+                            if (index === (playlistSize - 1)) {
+                                $(element).addClass('has-cursor');
+                            } else {
+                                $(element).removeClass('has-cursor');
+                            }
+                        });
+                    } else {
+                        $('.playlist-item').each((index, element) => {
+                            if (index === (currentIndex + 1)) {
+                                $(element).addClass('has-cursor');
+                            } else {
+                                $(element).removeClass('has-cursor');
+                            }
+                        });
+                    }
+                }
+            } else {
+                if (playlistSize > 0) {
+                    currentIndex = 0;
+
+                    $('.playlist-item').each((index, element) => {
+                        if (index === currentIndex) {
+                            $(element).addClass('has-cursor');
+                        } else {
+                            $(element).removeClass('has-cursor');
+                        }
+                    });
+                }
+            }
+
+            e.preventDefault();
+        } else if (e.keyCode === KeyCode.SPACE) {
+            let currentItem;
+            $('.playlist-item').each((index, element) => {
+                if ($(element).hasClass('has-cursor')) {
+                    currentItem = element;
+                }
+            });
+
+            if (typeof currentItem !== 'undefined') {
+                if ($(currentItem).closest('tr').hasClass('is-loaded')) {
+                    if (typeof audio !== 'undefined') {
+                        if (audio.paused) {
+                            audio.play();
+                            playPauseButton.find('span > i').removeClass('fa-play').addClass('fa-pause');
+                        } else {
+                            audio.pause();
+                            playPauseButton.find('span > i').removeClass('fa-pause').addClass('fa-play');
+                        }
+                    }
+                } else {
+                    playItem(currentItem);
+                }
+            }
+
+            e.preventDefault();
+        }
+    });
 
     groupingOptions.click((e) => {
         groupingOptions.each((index, element) => {
