@@ -82,7 +82,11 @@ ipcMain.on('getSong', (event, arg) => {
 });
 
 ipcMain.on('getSettings', (event, arg) => {
-    event.sender.send('getSettingsResult', {'settings': settings.settings, 'schema': settings.schema});
+    let render = true;
+    if (typeof arg !== 'undefined' && arg.hasOwnProperty('render')) {
+        render = arg.render;
+    }
+    event.sender.send('getSettingsResult', {'settings': settings.settings, 'schema': settings.schema, 'render': render});
 });
 
 ipcMain.on('setSettings', (event, arg) => {

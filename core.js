@@ -71,14 +71,16 @@ function Settings() {
         'musicDirectory': 'string',
         'defaultView': defaultViewEnum,
         'searchIgnoreCase': 'boolean',
-        'partialSearch': 'boolean'
+        'partialSearch': 'boolean',
+        'seekTime': 'number'
     };
 
     const defaultSettings = {
         'musicDirectory': path.join(userHomeDirectory, 'Music'),
         'defaultView': 'artist',
         'searchIgnoreCase': true,
-        'partialSearch': true
+        'partialSearch': true,
+        'seekTime': 10
     };
 
     this.save = function() {

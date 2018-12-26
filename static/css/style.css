@@ -96,7 +96,22 @@ html, body {
     padding: 0.5rem;
 }
 
+#progress-bar-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+#progress-bar-wrap > span {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-shadow: 0.05rem 0.05rem 0.25rem #000;
+}
+
 #progress-bar {
+    width: 75%;
     box-shadow: 0rem 0rem 0rem 0.1rem #fff;
     transition: box-shadow 200ms ease;
 }

@@ -7,12 +7,16 @@ const electron = require('electron');
 const { ipcRenderer } = electron;
 
 const KeyCode = {
-    'ARROW_UP': 38,
     'ARROW_DOWN': 40,
+    'ARROW_LEFT': 37,
+    'ARROW_UP': 38,
+    'ARROW_RIGHT': 39,
     'DELETE': 46,
     'ENTER': 13,
     'SPACE': 32
 }
+
+let settings;
 
 let playlistItems = [];
 
@@ -24,6 +28,10 @@ let searchBackButton;
 let searchForm;
 let searchMessage;
 
+(function ($) {
+    ipcRenderer.send('getSettings', {'render': false});
+})(jQuery)
+
 $(document).ready(() => {
     finderTarget = $('#finder-content');
     groupingOptions = $('.groupingOption');
@@ -34,6 +42,9 @@ $(document).ready(() => {
     searchMessage = $("#search-message");
 
     let audio;
+
+    let songCurrentTime = $("#song-current-time");
+    let songDuration = $("#song-duration");
 
     let playPauseButton = $('#control-play-pause');
     let previousButton = $('#control-prev');
@@ -166,6 +177,16 @@ $(document).ready(() => {
             }
 
             $(currentItem).closest('tr').remove();
+
+            e.preventDefault();
+        } else if (e.keyCode === KeyCode.ARROW_LEFT || e.keyCode === KeyCode.ARROW_RIGHT) {
+            if (typeof audio !== 'undefined') {
+                if (e.keyCode === KeyCode.ARROW_LEFT) {
+                    audio.currentTime -= settings.seekTime;
+                } else if (e.keyCode === KeyCode.ARROW_RIGHT) {
+                    audio.currentTime += settings.seekTime;
+                }
+            }
 
             e.preventDefault();
         }
@@ -309,6 +330,12 @@ $(document).ready(() => {
                 settingValue = $(fieldWrap).find('input').val();
                 if (settingValue === 'true' || settingValue === 'false') {
                     settingValue = (settingValue === 'true');
+                } else if (!isNaN(settingValue)) {
+                    if (settingValue.indexOf('.') > -1) {
+                        settingValue = parseFloat(settingValue);
+                    } else {
+                        settingValue = parseInt(settingValue);
+                    }
                 }
             } else {
                 let selectedText = $(fieldWrap).find('option').filter(':selected').first().text();
@@ -319,6 +346,7 @@ $(document).ready(() => {
         });
 
         ipcRenderer.send('setSettings', settings);
+        ipcRenderer.send('getSettings', {'render': false});
     });
 
     $(document).on('click', '.playlist-item', (e) => {
@@ -460,19 +488,21 @@ $(document).ready(() => {
         let next = getNextPlaylistItem();
         if (typeof next !== 'undefined') {
             playItem(next);
-
             scrollIntoView(next, playlist.parent());
-
         } else {
             let current = getCurrentPlaylistItem();
             $(current).removeClass('is-loaded');
             playPauseButton.find('span > i').removeClass('fa-pause').addClass('fa-play');
+            audio = undefined;
         }
     }
 
     function audioTimeUpdateListener() {
         let progress = audio.currentTime === 0 ? 0 : Math.ceil(audio.currentTime / audio.duration * 100);
         progressBar.val(progress);
+
+        songCurrentTime.text(formatTime(audio.currentTime));
+        songDuration.text(formatTime(audio.duration));
     }
 });
 
@@ -548,14 +578,18 @@ ipcRenderer.on('getSongResult', (event, arg) => {
 });
 
 ipcRenderer.on('getSettingsResult', (event, arg) => {
-    ejs.renderFile(path.join(__dirname, '..', 'views', 'partials', 'settings.ejs'),
-        { settings: arg['settings'], schema: arg['schema'] }, (err, str) => {
-            if (err) {
-                console.error(err.message);
-            } else {
-                modalTarget.append(str);
-            }
+    if (arg.render) {
+        ejs.renderFile(path.join(__dirname, '..', 'views', 'partials', 'settings.ejs'),
+            { settings: arg['settings'], schema: arg['schema'] }, (err, str) => {
+                if (err) {
+                    console.error(err.message);
+                } else {
+                    modalTarget.append(str);
+                }
         });
+    }
+
+    settings = arg['settings'];
 });
 
 ipcRenderer.on('setSettingsResult', (event, arg) => {
@@ -594,4 +628,30 @@ function searchByField(field, searchPhrase) {
             resolve(arg);
         });
     });
+}
+
+function formatTime(floatSecTime) {
+    let minutes = Math.floor(floatSecTime / 60);
+    let seconds = Math.floor(floatSecTime % 60);
+    let timeStr = '';
+    if (minutes < 10) {
+        timeStr += '0';
+    }
+    timeStr += minutes;
+    timeStr += ':';
+    if (seconds < 10) {
+        timeStr += '0';
+    }
+    timeStr += seconds;
+    return timeStr;
+}
+
+function getSetting(key) {
+    if (typeof settings === 'undefined') {
+        return undefined;
+    } else if (!settings.hasOwnProperty(key)) {
+        return undefined;
+    } else {
+        return settings[key];
+    }
 }
