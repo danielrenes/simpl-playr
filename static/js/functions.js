@@ -20,12 +20,18 @@ let finderTarget;
 let groupingOptions;
 let modalTarget;
 let playlist;
+let searchBackButton;
+let searchForm;
+let searchMessage;
 
 $(document).ready(() => {
     finderTarget = $('#finder-content');
     groupingOptions = $('.groupingOption');
     modalTarget = $('#modal-target');
     playlist = $('#playlist > table.is-scrollable > tbody');
+    searchBackButton = $('#search-back');
+    searchForm = $('#search-form');
+    searchMessage = $("#search-message");
 
     let audio;
 
@@ -36,9 +42,6 @@ $(document).ready(() => {
     let progressBar = $("#progress-bar");
 
     let scanButton = $('#scan');
-
-    let searchForm = $('#search-form');
-    let searchBackButton = $('#search-back');
 
     let searchInput = $('#search-input');
     let searchSubmit = $('#search-submit');
@@ -169,6 +172,10 @@ $(document).ready(() => {
     });
 
     groupingOptions.click((e) => {
+        $(searchBackButton).css('visibility', 'hidden');
+        $(searchMessage).css('visibility', 'hidden');
+        $(searchForm).css('visibility', 'visible').hide().fadeIn(750);
+
         groupingOptions.each((index, element) => {
             $(element).removeClass('is-active');
         });
@@ -255,6 +262,7 @@ $(document).ready(() => {
 
     searchBackButton.click(() => {
         $(searchBackButton).css('visibility', 'hidden');
+        $(searchMessage).css('visibility', 'hidden');
         $(searchForm).css('visibility', 'visible').hide().fadeIn(750);
 
         let groupingOption = getGroupingOption();
@@ -272,7 +280,12 @@ $(document).ready(() => {
             case 'artist':
             case 'album':
             case 'genre':
-                ipcRenderer.send('getSongsBy', { 'field': groupingOption, 'value': value });
+                if ($(searchMessage).css('visibility') === 'visible') {
+                    ipcRenderer.send('getSong', value);
+                } else {
+                    ipcRenderer.send('getSongsBy', { 'field': groupingOption, 'value': value });
+                    $(searchMessage).text(value);
+                }
                 break;
             case 'title':
                 ipcRenderer.send('getSong', value);
@@ -399,9 +412,11 @@ $(document).ready(() => {
 
         $('.playlist-item').each((index, element) => {
             $(element).removeClass('is-loaded');
+            $(element).removeClass('has-cursor');
         });
 
         $(row).addClass('is-loaded');
+        $(row).addClass('has-cursor');
     }
 
     async function search() {
@@ -485,9 +500,24 @@ ipcRenderer.on('initGroupingOption', (event, arg) => {
 });
 
 ipcRenderer.on('listSongsResult', (event, arg) => {
-    console.log(arg);
+    let result = []
+    for (let i = 0; i < arg.length; i++) {
+        result.push(arg[i]['title']);
+    }
 
-    // TODO
+    ejs.renderFile(path.join(__dirname, '..', 'views', 'partials', 'finderResult.ejs'), { result: result }, (err, str) => {
+        if (err) {
+            console.error(err.message);
+        } else {
+            finderTarget.empty();
+            finderTarget.append(str);
+            $(finderTarget).hide().fadeIn(750);
+
+            $(searchForm).css('visibility', 'hidden');
+            $(searchBackButton).css('visibility', 'visible').hide().fadeIn(750);
+            $(searchMessage).css('visibility', 'visible').hide().fadeIn(750);
+        }
+    });
 });
 
 ipcRenderer.on('getSongResult', (event, arg) => {

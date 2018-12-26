@@ -24,6 +24,15 @@ html, body {
     position: relative;
 }
 
+#finder-search-wrap > #search-message {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    visibility: hidden;
+    font-size: 1.25rem;
+    color: #fff;
+}
+
 #finder-search-wrap > #search-back {
     position: absolute;
     top: 0.25rem;
@@ -88,12 +97,12 @@ html, body {
 }
 
 #progress-bar {
-    box-shadow: 0rem 0rem 0rem 0.1rem #FFF;
+    box-shadow: 0rem 0rem 0rem 0.1rem #fff;
     transition: box-shadow 200ms ease;
 }
 
 #progress-bar:hover {
-    box-shadow: 0rem 0rem 0.125rem 0.125rem #FFF;
+    box-shadow: 0rem 0rem 0.125rem 0.125rem #fff;
 }
 
 .modal {
