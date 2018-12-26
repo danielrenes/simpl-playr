@@ -9,6 +9,7 @@ const { ipcRenderer } = electron;
 const KeyCode = {
     'ARROW_UP': 38,
     'ARROW_DOWN': 40,
+    'DELETE': 46,
     'ENTER': 13,
     'SPACE': 32
 }
@@ -142,6 +143,28 @@ $(document).ready(() => {
             }
 
             e.preventDefault();
+        } else if (e.keyCode === KeyCode.DELETE) {
+            let currentItem;
+            $('.playlist-item').each((index, element) => {
+                if ($(element).hasClass('has-cursor')) {
+                    currentItem = element;
+                }
+            });
+
+            if ($(currentItem).closest('tr').hasClass('is-loaded')) {
+                if (typeof audio !== 'undefined') {
+                    audio.pause();
+                    audio.removeEventListener('ended', audioEndedListener);
+                    audio.removeEventListener('timeupdate', audioTimeUpdateListener);
+                    audio = undefined;
+                    playPauseButton.find('span > i').removeClass('fa-pause').addClass('fa-play');
+                    progressBar.val(0);
+                }
+            }
+
+            $(currentItem).closest('tr').remove();
+
+            e.preventDefault();
         }
     });
 
@@ -165,8 +188,6 @@ $(document).ready(() => {
                 playPauseButton.find('span > i').removeClass('fa-pause').addClass('fa-play');
             }
         } else {
-            // TODO
-            // select first playlist item and play it
             let firstPlaylistItem = $('.playlist-item').first();
             playItem(firstPlaylistItem);
         }
@@ -302,22 +323,6 @@ $(document).ready(() => {
             playItem(e.target);
         }
     });
-
-    // TODO: problem two click events are fired before dblclick => starts playing the removable item
-    // $(document).on('dblclick', '.playlist-item', (e) => {
-    //     if ($(e.target).closest('tr').hasClass('is-loaded')) {
-    //         if (typeof audio !== 'undefined') {
-    //             audio.pause();
-    //             audio.removeEventListener('ended', audioEndedListener);
-    //             audio.removeEventListener('timeupdate', audioTimeUpdateListener);
-    //             audio = undefined;
-    //             playPauseButton.find('span > i').removeClass('fa-pause').addClass('fa-play');
-    //             progressBar.val(0);
-    //         }
-    //     }
-
-    //     $(e.target).closest('tr').remove();
-    // });
 
     function getGroupingOption() {
         let groupingOption;
@@ -481,6 +486,8 @@ ipcRenderer.on('initGroupingOption', (event, arg) => {
 
 ipcRenderer.on('listSongsResult', (event, arg) => {
     console.log(arg);
+
+    // TODO
 });
 
 ipcRenderer.on('getSongResult', (event, arg) => {
