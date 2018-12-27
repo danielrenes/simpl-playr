@@ -1,0 +1,17 @@
+<%
+function formatTime(floatSecTime) {
+    let minutes = Math.floor(floatSecTime / 60);
+    let seconds = Math.floor(floatSecTime % 60);
+    let timeStr = '';
+    if (minutes < 10) {
+        timeStr += '0';
+    }
+    timeStr += minutes;
+    timeStr += ':';
+    if (seconds < 10) {
+        timeStr += '0';
+    }
+    timeStr += seconds;
+    return timeStr;
+}
+%>

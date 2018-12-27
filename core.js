@@ -19,6 +19,7 @@ function Song(filepath, filename) {
     this.title = '';
     this.album = '';
     this.genre = '';
+    this.duration = '';
 }
 
 function listDirectory(directoryPath) {
@@ -139,13 +140,12 @@ function Library(musicDirectoryPath) {
         musicMetadata
             .parseFile(song.filepath, {native: true})
             .then(function (metadata) {
-                let songInfo = metadata['common'];
-
-                song.artist = (typeof songInfo['artist'] !== 'undefined') ? songInfo['artist'] : 'Unknown';
-                song.title = (typeof songInfo['title'] !== 'undefined') ? songInfo['title'] : 'Unknown';
-                song.album = (typeof songInfo['album'] !== 'undefined') ? songInfo['album'] : 'Unknown';
-                song.genre = ((typeof songInfo['genre'] !== 'undefined') &&
-                                (songInfo['genre'].length > 0)) ? songInfo['genre'][0] : 'Unknown';
+                song.artist = (typeof metadata.common.artist !== 'undefined') ? metadata.common.artist : 'Unknown';
+                song.title = (typeof metadata.common.title !== 'undefined') ? metadata.common.title : 'Unknown';
+                song.album = (typeof metadata.common.album !== 'undefined') ? metadata.common.album : 'Unknown';
+                song.genre = ((typeof metadata.common.genre !== 'undefined') &&
+                                (metadata.common.genre.length > 0)) ? metadata.common.genre[0] : 'Unknown';
+                song.duration = (typeof metadata.format.duration !== 'undefined') ? metadata.format.duration : 'Unknown';
                 callback(song);
             })
             .catch(function (err) {
