@@ -44,6 +44,8 @@ $(document).ready(() => {
 
     let audio;
 
+    let clearPlaylist = $('#clear-playlist');
+
     let songCurrentTime = $("#song-current-time");
     let songDuration = $("#song-duration");
 
@@ -194,6 +196,14 @@ $(document).ready(() => {
 
             e.preventDefault();
         }
+    });
+
+    clearPlaylist.click((e) => {
+        $('.playlist-item').each((index, element) => {
+            $(element).closest('tr').remove();
+        });
+
+        playlistItems.splice(0, playlistItems.length);
     });
 
     groupingOptions.click((e) => {
