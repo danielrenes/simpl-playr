@@ -23,6 +23,8 @@ let playlistItems = [];
 let finderTarget;
 let groupingOptions;
 let modalTarget;
+let playlistHeaderLastColumn;
+let playlistTable;
 let playlist;
 let searchBackButton;
 let searchForm;
@@ -37,6 +39,8 @@ $(document).ready(() => {
     finderTarget = $('#finder-content');
     groupingOptions = $('.groupingOption');
     modalTarget = $('#modal-target');
+    playlistHeaderLastColumn = $('#playlist > table:first-child > thead > tr > th:last-child > div');
+    playlistTable = $('#playlist > table.is-scrollable');
     playlist = $('#playlist > table.is-scrollable > tbody');
     searchBackButton = $('#search-back');
     searchForm = $('#search-form');
@@ -183,6 +187,7 @@ $(document).ready(() => {
 
             $(currentItem).closest('tr').remove();
             playlistItems.splice(currentIndex, 1);
+            adjustPlaylistHeaderOffset();
 
             e.preventDefault();
         } else if (e.keyCode === KeyCode.ARROW_LEFT || e.keyCode === KeyCode.ARROW_RIGHT) {
@@ -583,6 +588,8 @@ ipcRenderer.on('getSongResult', (event, arg) => {
                 console.error(err.message);
             } else {
                 playlist.append(str);
+
+                adjustPlaylistHeaderOffset();
             }
         });
 
@@ -676,5 +683,14 @@ function getSetting(key) {
         return undefined;
     } else {
         return settings[key];
+    }
+}
+
+function adjustPlaylistHeaderOffset() {
+    let scrollbarWidth = playlistTable.width() - playlist.width();
+    if (scrollbarWidth > 4) {
+        $(playlistHeaderLastColumn).css('marginLeft', '-' + (scrollbarWidth - 2) + 'px');
+    } else {
+        $(playlistHeaderLastColumn).css('marginLeft', '0px');
     }
 }

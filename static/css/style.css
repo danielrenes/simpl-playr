@@ -61,8 +61,13 @@ html, body {
     margin-bottom: 0;
 }
 
+#playlist > .table:first-child > thead > tr > th {
+    font-size: 1.125rem;
+    text-align: left;
+}
+
 .playlist-title-column {
-    width: 33%;
+    width: 32%;
 }
 
 .playlist-artist-column {
@@ -70,11 +75,11 @@ html, body {
 }
 
 .playlist-album-column {
-    width: 33%;
+    width: 32%;
 }
 
 .playlist-duration-column {
-    width: 11%;
+    width: 13%;
 }
 
 .playlist-item {
