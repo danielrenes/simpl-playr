@@ -1,8 +1,8 @@
 <% include ../helpers/formatter %>
 
 <tr class="playlist-item">
-    <th><%= song.title %></th>
-    <td><%= song.artist %></td>
-    <td><%= song.album %></td>
-    <td><%= formatTime(song.duration) %></td>
+    <th class="playlist-title-column"><%= song.title %></th>
+    <td class="playlist-artist-column"><%= song.artist %></td>
+    <td class="playlist-album-column"><%= song.album %></td>
+    <td class="playlist-duration-column"><%= formatTime(song.duration) %></td>
 </tr>
