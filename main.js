@@ -7,11 +7,12 @@ const electron = require('electron');
 const {app, BrowserWindow, ipcMain} = electron;
 
 const core = require('./core.js');
-const {Library, Settings, Song} = core;
+const {Library, Settings, Playlist} = core;
 
 const settings = new Settings();
-
 const library = new Library(settings.settings['musicDirectory']);
+const playlist = new Playlist();
+
 let mainWindow;
 
 app.on('ready', () => {
@@ -27,6 +28,10 @@ app.on('ready', () => {
         protocol: 'file:',
         slashes: true
     }));
+
+    mainWindow.on('close', () => {
+        mainWindow.webContents.send('savePlaylist');
+    });
 
     mainWindow.on('closed', () => {
         app.quit();
@@ -96,4 +101,16 @@ ipcMain.on('setSettings', (event, arg) => {
         settings.save();
     }
     event.sender.send('setSettingsResult', result[1]);
+});
+
+ipcMain.on('savePlaylist', (event, arg) => {
+    if (arg.length === 1 && arg[0].length === 0) {
+        arg = [];
+    }
+    playlist.save(settings.settings.savePlaylist, arg);
+});
+
+ipcMain.on('getSavedPlaylist', (event, arg) => {
+    let savedPlaylist = playlist.load(settings.settings.savePlaylist, library);
+    event.sender.send('getSavedPlaylistResult', savedPlaylist);
 });

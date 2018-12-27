@@ -10,6 +10,7 @@ const userHomeDirectory = require('os').homedir();
 const appDataDirectory =  path.join(userHomeDirectory, '.simplplayr');
 const settingsPath = path.join(appDataDirectory, 'settings.json');
 const libraryPath = path.join(appDataDirectory, 'library.json');
+const savedPlaylistPath = path.join(appDataDirectory, 'playlist.json');
 
 function Song(filepath, filename) {
     this.filepath = filepath;
@@ -72,7 +73,8 @@ function Settings() {
         'defaultView': defaultViewEnum,
         'searchIgnoreCase': 'boolean',
         'partialSearch': 'boolean',
-        'seekTime': 'number'
+        'seekTime': 'number',
+        'savePlaylist': 'boolean'
     };
 
     const defaultSettings = {
@@ -80,7 +82,8 @@ function Settings() {
         'defaultView': 'artist',
         'searchIgnoreCase': true,
         'partialSearch': true,
-        'seekTime': 10
+        'seekTime': 10,
+        'savePlaylist': false
     };
 
     this.save = function() {
@@ -141,8 +144,8 @@ function Library(musicDirectoryPath) {
                 song.artist = (typeof songInfo['artist'] !== 'undefined') ? songInfo['artist'] : 'Unknown';
                 song.title = (typeof songInfo['title'] !== 'undefined') ? songInfo['title'] : 'Unknown';
                 song.album = (typeof songInfo['album'] !== 'undefined') ? songInfo['album'] : 'Unknown';
-                song.genre = ((typeof songInfo['genre'] !== 'undefined')
-                                && (songInfo['genre'].length > 0)) ? songInfo['genre'][0] : 'Unknown';
+                song.genre = ((typeof songInfo['genre'] !== 'undefined') &&
+                                (songInfo['genre'].length > 0)) ? songInfo['genre'][0] : 'Unknown';
                 callback(song);
             })
             .catch(function (err) {
@@ -290,6 +293,56 @@ function Library(musicDirectoryPath) {
     this.songs = this.load() || [];
 }
 
+function Playlist() {
+    this.load = function(savePlaylist, library) {
+        if (!savePlaylist) {
+            return [];
+        } else {
+            if (!fs.existsSync(savedPlaylistPath)) {
+                console.log('saved playlist is not found');
+                return [];
+            }
+            let playlist = JSON.parse(fs.readFileSync(savedPlaylistPath));
+            for (let i = 0; i < playlist.length; i++) {
+                let playlistItem = playlist[i];
+                let foundInLibrary = false;
+
+                for (let j = 0; j < library.songs.length; j++) {
+                    let song = library.songs[j];
+                    if ((playlistItem.artist === song.artist) &&
+                            (playlistItem.album === song.album) &&
+                            (playlistItem.genre === song.genre) &&
+                            (playlistItem.title === song.title)) {
+                        foundInLibrary = true;
+                        break;
+                    }
+                }
+
+                if (!foundInLibrary) {
+                    console.log('could not find song (' + playlistItem.artist +
+                                                    ', ' + playlistItem.album +
+                                                    ', ' + playlistItem.genre +
+                                                    ', ' + playlistItem.title + ') in library');
+                    return [];
+                }
+            }
+            return playlist;
+        }
+    }
+
+    this.save = function(savePlaylist, playlist) {
+        if (!savePlaylist) {
+            return;
+        } else {
+            if (!fs.existsSync(appDataDirectory)) {
+                fs.mkdirSync(appDataDirectory);
+            }
+            fs.writeFileSync(savedPlaylistPath, JSON.stringify(playlist));
+        }
+    }
+}
+
 module.exports.Song = Song;
 module.exports.Settings = Settings;
 module.exports.Library = Library;
+module.exports.Playlist = Playlist;

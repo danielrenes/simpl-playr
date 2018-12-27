@@ -30,6 +30,7 @@ let searchMessage;
 
 (function ($) {
     ipcRenderer.send('getSettings', {'render': false});
+    ipcRenderer.send('getSavedPlaylist');
 })(jQuery)
 
 $(document).ready(() => {
@@ -159,9 +160,11 @@ $(document).ready(() => {
             e.preventDefault();
         } else if (e.keyCode === KeyCode.DELETE) {
             let currentItem;
+            let currentIndex;
             $('.playlist-item').each((index, element) => {
                 if ($(element).hasClass('has-cursor')) {
                     currentItem = element;
+                    currentIndex = index;
                 }
             });
 
@@ -177,6 +180,7 @@ $(document).ready(() => {
             }
 
             $(currentItem).closest('tr').remove();
+            playlistItems.splice(currentIndex, 1);
 
             e.preventDefault();
         } else if (e.keyCode === KeyCode.ARROW_LEFT || e.keyCode === KeyCode.ARROW_RIGHT) {
@@ -552,13 +556,12 @@ ipcRenderer.on('listSongsResult', (event, arg) => {
 
 ipcRenderer.on('getSongResult', (event, arg) => {
     let alreadyInPlaylist = false;
-
     for (let i in playlistItems) {
         let playlistItem = playlistItems[i];
 
         if ((playlistItem['artist'] === arg['artist']) &&
-            (playlistItem['title'] === arg['title']) &&
-            (playlistItem['album'] === arg['album'])) {
+                (playlistItem['title'] === arg['title']) &&
+                (playlistItem['album'] === arg['album'])) {
             alreadyInPlaylist = true;
             break;
         }
@@ -600,6 +603,16 @@ ipcRenderer.on('setSettingsResult', (event, arg) => {
 
         // TODO
         // display error message
+    }
+});
+
+ipcRenderer.on('savePlaylist', (event, arg) => {
+    ipcRenderer.send('savePlaylist', playlistItems);
+});
+
+ipcRenderer.on('getSavedPlaylistResult', (event, arg) => {
+    for (let i = 0; i < arg.length; i++) {
+        ipcRenderer.send('getSong', arg[i].title);
     }
 });
 
