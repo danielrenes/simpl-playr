@@ -7,7 +7,7 @@ const electron = require('electron');
 const {app, BrowserWindow, ipcMain} = electron;
 
 const core = require('./core.js');
-const {Library, Settings, Playlist} = core;
+const {Library, Playlist, Settings, findCoverArt} = core;
 
 const settings = new Settings();
 const library = new Library(settings.settings['musicDirectory']);
@@ -113,4 +113,14 @@ ipcMain.on('savePlaylist', (event, arg) => {
 ipcMain.on('getSavedPlaylist', (event, arg) => {
     let savedPlaylist = playlist.load(settings.settings.savePlaylist, library);
     event.sender.send('getSavedPlaylistResult', savedPlaylist);
+});
+
+ipcMain.on('getCoverArt', (event, arg) => {
+    if (settings.settings.loadCoverArt) {
+        findCoverArt(arg.artist, arg.album, (result) => {
+            event.sender.send('getCoverArtResult', result);
+        })
+    } else {
+        event.sender.send('getCoverArtResult', undefined);
+    }
 });

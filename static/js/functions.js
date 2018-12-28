@@ -20,6 +20,7 @@ let settings;
 
 let playlistItems = [];
 
+let coverArtHolder;
 let finderTarget;
 let groupingOptions;
 let modalTarget;
@@ -36,6 +37,7 @@ let searchMessage;
 })(jQuery)
 
 $(document).ready(() => {
+    coverArtHolder = $('#cover-art-holder');
     finderTarget = $('#finder-content');
     groupingOptions = $('.groupingOption');
     modalTarget = $('#modal-target');
@@ -276,7 +278,7 @@ $(document).ready(() => {
         if (typeof audio !== 'undefined') {
             let progressLeft = $(progressBar).position().left;
             let progressRight = progressLeft + $(progressBar).width();
-            let clickPosition = e.clientX;
+            let clickPosition = e.pageX - e.target.offsetParent.offsetLeft;
 
             let percentage = (clickPosition - progressLeft) / (progressRight - progressLeft);
 
@@ -457,6 +459,12 @@ $(document).ready(() => {
             }
         });
 
+        getCoverArt(playlistItems[$(row).index()]).then((result) => {
+            if (typeof result !== 'undefined') {
+                setCoverArt(result, 0);
+            }
+        });
+
         $('.playlist-item').each((index, element) => {
             $(element).removeClass('is-loaded');
             $(element).removeClass('has-cursor');
@@ -514,6 +522,7 @@ $(document).ready(() => {
             playPauseButton.find('span > i').removeClass('fa-pause').addClass('fa-play');
             audio = undefined;
         }
+        $(coverArtHolder).css('visibility', 'hidden');
     }
 
     function audioTimeUpdateListener() {
@@ -651,6 +660,15 @@ function getSongPath(artist, title) {
     });
 }
 
+function getCoverArt(song) {
+    return new Promise((resolve) => {
+        ipcRenderer.send('getCoverArt', song);
+        ipcRenderer.on('getCoverArtResult', (event, arg) => {
+            resolve(arg);
+        });
+    });
+}
+
 function searchByField(field, searchPhrase) {
     return new Promise((resolve) => {
         ipcRenderer.send('searchByField', {'field': field, 'searchPhrase': searchPhrase});
@@ -693,4 +711,15 @@ function adjustPlaylistHeaderOffset() {
     } else {
         $(playlistHeaderLastColumn).css('marginLeft', '0px');
     }
+}
+
+function setCoverArt(image_links, index) {
+    $.get(image_links[index])
+        .done((res) => {
+            $(coverArtHolder).css('background-image', 'url("' + image_links[index] + '")');
+            $(coverArtHolder).css('visibility', 'visible').hide().fadeIn(750);
+        })
+        .fail((err) => {
+            setCoverArt(image_links, ++index);
+        });
 }

@@ -20,6 +20,8 @@
   "author": "Daniel Renes",
   "license": "MIT",
   "dependencies": {
+    "disconnect": "^1.2.1",
+    "dotenv": "^6.2.0",
     "ejs": "^2.6.1",
     "fuzzysearch": "^1.0.3",
     "music-metadata": "^2.2.0"

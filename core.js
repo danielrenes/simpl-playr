@@ -1,16 +1,55 @@
 'use strict';
 
+require('dotenv').config();
+
 const fs = require('fs');
 const path = require('path');
 
 const fuzzysearch = require('fuzzysearch');
 const musicMetadata = require('music-metadata');
+const Discogs = require('disconnect').Client;
+const discogsDatabase = new Discogs({userToken: process.env.DISCOGS_API_KEY}).database();
 
 const userHomeDirectory = require('os').homedir();
 const appDataDirectory =  path.join(userHomeDirectory, '.simplplayr');
 const settingsPath = path.join(appDataDirectory, 'settings.json');
 const libraryPath = path.join(appDataDirectory, 'library.json');
 const savedPlaylistPath = path.join(appDataDirectory, 'playlist.json');
+
+let findCoverArt = function(artist, album, cb) {
+    discogsDatabase.search({artist: artist, album: album}).then((res, err) => {
+        if (typeof err === 'undefined' && res.hasOwnProperty('results')) {
+            let image_links = []
+
+            // try to get images that match both the artist and the album
+            for (let i = 0; i < res.results.length; i++) {
+                if (res.results[i].title.indexOf(artist) > -1 &&
+                        res.results[i].title.indexOf(album) > -1 &&
+                        typeof res.results[i].cover_image !== 'undefined') {
+                    image_links.push(res.results[i].cover_image);
+                }
+            }
+
+            if (image_links.length === 0) {
+                // try to get images that only match the artist
+                for (let i = 0; i < res.results.length; i++) {
+                    if (res.results[i].title.indexOf(artist) > -1 &&
+                            typeof res.results[i].cover_image !== 'undefined') {
+                        image_links.push(res.results[i].cover_image);
+                    }
+                }
+            }
+
+            if (image_links.length === 0) {
+                image_links = undefined;
+            }
+
+            cb(image_links);
+        } else {
+            cb(undefined);
+        }
+    });
+}
 
 function Song(filepath, filename) {
     this.filepath = filepath;
@@ -75,7 +114,8 @@ function Settings() {
         'searchIgnoreCase': 'boolean',
         'partialSearch': 'boolean',
         'seekTime': 'number',
-        'savePlaylist': 'boolean'
+        'savePlaylist': 'boolean',
+        'loadCoverArt': 'boolean'
     };
 
     const defaultSettings = {
@@ -84,7 +124,8 @@ function Settings() {
         'searchIgnoreCase': true,
         'partialSearch': true,
         'seekTime': 10,
-        'savePlaylist': false
+        'savePlaylist': false,
+        'loadCoverArt': false
     };
 
     this.save = function() {
@@ -346,3 +387,4 @@ module.exports.Song = Song;
 module.exports.Settings = Settings;
 module.exports.Library = Library;
 module.exports.Playlist = Playlist;
+module.exports.findCoverArt = findCoverArt;
